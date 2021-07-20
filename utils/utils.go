@@ -2,13 +2,14 @@ package utils
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"strings"
 )
 
 func Must(err error) {
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Println(err.Error())
 		os.Exit(1)
 	}
 }
@@ -44,4 +45,16 @@ func setSizes(words []string, newSize int) []string {
 	}
 
 	return newList
+}
+
+func ValidateMinLength(minSize int, arr []string) error {
+	if arr == nil || len(arr) < minSize {
+		return fmt.Errorf(
+			"array is smaller than expected needed: %d, got %d",
+			minSize,
+			len(arr),
+		)
+	}
+
+	return nil
 }
