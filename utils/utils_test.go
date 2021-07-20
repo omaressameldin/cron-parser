@@ -1,6 +1,9 @@
 package utils
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+)
 
 type equalizeStringsSizesTest struct {
 	input  []string
@@ -92,6 +95,62 @@ func TestValidateMinLength(t *testing.T) {
 				row.arr,
 				row.minLength,
 				res,
+			)
+		}
+	}
+}
+
+type createArrFromTest struct {
+	start             int
+	end               int
+	output            []int
+	shouldReturnError bool
+}
+
+func createArrFromTestTable() []createArrFromTest {
+	return []createArrFromTest{
+		{
+			output:            []int{2, 3, 4, 5},
+			start:             2,
+			end:               5,
+			shouldReturnError: false,
+		},
+		{
+			output:            []int{-2, -1, 0, 1, 2},
+			start:             -2,
+			end:               2,
+			shouldReturnError: false,
+		},
+		{
+			output:            []int{2},
+			start:             2,
+			end:               2,
+			shouldReturnError: false,
+		},
+		{
+			output:            nil,
+			start:             2,
+			end:               1,
+			shouldReturnError: true,
+		},
+	}
+}
+
+func TestCreateArrFrom(t *testing.T) {
+	for _, row := range createArrFromTestTable() {
+		res, err := CreateArrFrom(row.start, row.end)
+		if row.shouldReturnError && (err == nil || res != nil) {
+			t.Errorf(
+				"expected: (<nil>,error), got: (%v,%v)",
+				res,
+				err,
+			)
+		} else if !row.shouldReturnError && (err != nil || !reflect.DeepEqual(res, row.output)) {
+			t.Errorf(
+				"expected: (%v,<nil>), got: (%v,%v)",
+				row.output,
+				res,
+				err,
 			)
 		}
 	}

@@ -58,3 +58,15 @@ func ValidateMinLength(minSize int, arr []string) error {
 
 	return nil
 }
+
+func CreateArrFrom(start, end int) ([]int, error) {
+	if end < start {
+		return nil, fmt.Errorf("end can't be smaller than start, start: %d, end: %d", start, end)
+	}
+	arr := make([]int, 0, end-start+1)
+	for i := start; i <= end; i++ {
+		arr = append(arr, i)
+	}
+
+	return arr, nil
+}
