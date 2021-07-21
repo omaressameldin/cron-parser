@@ -9,5 +9,6 @@ const minArgsLength = 6
 
 var minuteRange = Range{0, 59}
 var hourRange = Range{0, 23}
-var monthRange = Range{0, 12}
-var dayRange = Range{0, 6}
+var dayRange = Range{1, 31}
+var weekRange = Range{1, 7}
+var monthRange = Range{1, 12}
