@@ -155,3 +155,83 @@ func TestCreateArrFrom(t *testing.T) {
 		}
 	}
 }
+
+type convertIntArrToStringTest struct {
+	arr       []int
+	separator string
+	expected  string
+}
+
+func createConvertIntArrToStringTestTable() []convertIntArrToStringTest {
+	return []convertIntArrToStringTest{
+		{
+			arr:       []int{2, 3, 4, 5},
+			separator: "-",
+			expected:  "2-3-4-5",
+		},
+		{
+			arr:       []int{2, 3, 4, 5},
+			separator: ",",
+			expected:  "2,3,4,5",
+		},
+		{
+			arr:       []int{2},
+			separator: "-",
+			expected:  "2",
+		},
+		{
+			arr:       []int{},
+			separator: "",
+			expected:  "",
+		},
+	}
+}
+
+func TestConvertIntArrToString(t *testing.T) {
+	for _, row := range createConvertIntArrToStringTestTable() {
+		res := ConvertIntArrToString(row.arr, row.separator)
+		if res != row.expected {
+			t.Errorf("Incorrect output expected (%s), got (%s)", row.expected, res)
+		}
+	}
+}
+
+type transformArrAndRemoveDupsTest struct {
+	arr      []int
+	step     int
+	expected []int
+}
+
+func createGetArrValuesTestTable() []transformArrAndRemoveDupsTest {
+	return []transformArrAndRemoveDupsTest{
+		{
+			arr:      []int{2, 3, 4, 5},
+			step:     2,
+			expected: []int{2, 4},
+		},
+		{
+			arr:      []int{2, 3, 4, 5, 6, 7, 8},
+			step:     3,
+			expected: []int{2, 5, 8},
+		},
+		{
+			arr:      []int{2, 3, 4, 5, 6, 7, 8},
+			step:     20,
+			expected: []int{2},
+		},
+		{
+			arr:      []int{},
+			step:     20,
+			expected: []int{},
+		},
+	}
+}
+
+func TestGetArrValues(t *testing.T) {
+	for _, row := range createGetArrValuesTestTable() {
+		res := GetArrValues(row.arr, row.step)
+		if !reflect.DeepEqual(row.expected, res) {
+			t.Errorf("Incorrect output expected %v, got %v", row.expected, res)
+		}
+	}
+}

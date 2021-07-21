@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -69,4 +70,22 @@ func CreateArrFrom(start, end int) ([]int, error) {
 	}
 
 	return arr, nil
+}
+
+func ConvertIntArrToString(arr []int, separator string) string {
+	strArr := make([]string, len(arr))
+	for i, item := range arr {
+		strArr[i] = strconv.Itoa(item)
+	}
+
+	return strings.Join(strArr, separator)
+}
+
+func GetArrValues(arr []int, step int) []int {
+	transformedArr := make([]int, 0, len(arr))
+	for i := 0; i < len(arr); i += step {
+		transformedArr = append(transformedArr, arr[i])
+	}
+
+	return transformedArr
 }
