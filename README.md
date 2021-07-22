@@ -3,6 +3,7 @@ A golang cli to parse cron job input.
 
 ## How to install
 - Download package from [releases](https://github.com/omaressameldin/cron-parser/releases/)
+- Set the binary to be executable `chmod +x cron-parser`
 ### Or
 - Install [GO version manager](https://github.com/stefanmaric/g)
 - Install GO 1.16 => `g install 1.16.4`
