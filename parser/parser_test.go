@@ -108,6 +108,17 @@ func createParserTestTable() []parserTest {
 			command:           "/usr/bin/find test",
 		},
 		{
+			timeInput:         [5]string{"10", "15", "1", "1,2,3,7-11/2", "1"},
+			commandInput:      []string{"/usr/bin/find", "test"},
+			shouldReturnError: false,
+			minutes:           []int{10},
+			hours:             []int{15},
+			days:              []int{1},
+			months:            []int{1, 2, 3, 7, 9, 11},
+			weekDays:          []int{1},
+			command:           "/usr/bin/find test",
+		},
+		{
 			timeInput:         [5]string{"*", "*", "*", "3/2/5,4/2", "*"},
 			commandInput:      []string{"/usr/bin/find", "test"},
 			shouldReturnError: true,
