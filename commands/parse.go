@@ -2,11 +2,13 @@ package commands
 
 import (
 	"log"
-	"strings"
+	"parser"
 	"utils"
 
 	"github.com/spf13/cobra"
 )
+
+const minArgsLength = 6
 
 var parseCmd = &cobra.Command{
 	Use:   "parse",
@@ -30,24 +32,21 @@ func parseCron(cmd *cobra.Command, args []string) {
 		"command:",
 	})
 	// taking all of args except command (1 or more arg) as command does not need adjusting
-	outputs := createRanges(args[:minArgsLength-1])
-	outputs = append(outputs, createCommandFromArgs(args[minArgsLength-1:]))
+	var timeArgs [5]string
+	copy(timeArgs[:], args[:minArgsLength-1])
 
-	printExpandedTable(rows, outputs)
+	cronParser, err := parser.Init(timeArgs, args[minArgsLength-1:])
+	utils.Must(err)
+
+	printExpandedTable(rows, cronParser)
 }
 
-func printExpandedTable(rows []string, outputs []string) {
-	for i := 0; i < len(rows); i++ {
-		log.Printf("%s %s\n", rows[i], outputs[i])
-	}
-}
-
-func createCommandFromArgs(command []string) string {
-	return strings.Join(command, " ")
-}
-
-func createRanges(rangeValues []string) []string {
-	outputs := make([]string, minArgsLength-1)
-
-	return outputs
+func printExpandedTable(rows []string, cronParser *parser.Parser) {
+	separator := " "
+	log.Printf("%s %s\n", rows[0], utils.ConvertIntArrToString(cronParser.GetMinute(), separator))
+	log.Printf("%s %s\n", rows[1], utils.ConvertIntArrToString(cronParser.GetHour(), separator))
+	log.Printf("%s %s\n", rows[2], utils.ConvertIntArrToString(cronParser.GetDay(), separator))
+	log.Printf("%s %s\n", rows[3], utils.ConvertIntArrToString(cronParser.GetMonth(), separator))
+	log.Printf("%s %s\n", rows[4], utils.ConvertIntArrToString(cronParser.GetWeek(), separator))
+	log.Printf("%s %s\n", rows[5], cronParser.GetCommand())
 }

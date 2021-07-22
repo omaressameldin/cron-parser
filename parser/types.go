@@ -1,4 +1,13 @@
-package commands
+package parser
+
+type Parser struct {
+	minute  []int
+	hour    []int
+	day     []int
+	month   []int
+	week    []int
+	command string
+}
 
 type Range struct {
 	Start int
