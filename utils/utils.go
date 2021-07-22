@@ -60,12 +60,16 @@ func ValidateMinLength(minSize int, arr []string) error {
 	return nil
 }
 
-func CreateArrFrom(start, end int) ([]int, error) {
+func CreateArrFrom(start, end int, step int) ([]int, error) {
 	if end < start {
 		return nil, fmt.Errorf("end can't be smaller than start, start: %d, end: %d", start, end)
 	}
+	if step <= 0 {
+		return nil, fmt.Errorf("step can't be less than or equal 0")
+	}
+
 	arr := make([]int, 0, end-start+1)
-	for i := start; i <= end; i++ {
+	for i := start; i <= end; i += step {
 		arr = append(arr, i)
 	}
 
@@ -79,13 +83,4 @@ func ConvertIntArrToString(arr []int, separator string) string {
 	}
 
 	return strings.Join(strArr, separator)
-}
-
-func GetArrValues(arr []int, step int) []int {
-	transformedArr := make([]int, 0, len(arr))
-	for i := 0; i < len(arr); i += step {
-		transformedArr = append(transformedArr, arr[i])
-	}
-
-	return transformedArr
 }

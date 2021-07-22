@@ -103,6 +103,7 @@ func TestValidateMinLength(t *testing.T) {
 type createArrFromTest struct {
 	start             int
 	end               int
+	step              int
 	output            []int
 	shouldReturnError bool
 }
@@ -113,19 +114,29 @@ func createArrFromTestTable() []createArrFromTest {
 			output:            []int{2, 3, 4, 5},
 			start:             2,
 			end:               5,
+			step:              1,
 			shouldReturnError: false,
 		},
 		{
-			output:            []int{-2, -1, 0, 1, 2},
+			output:            []int{-2, 0, 2},
 			start:             -2,
 			end:               2,
+			step:              2,
 			shouldReturnError: false,
 		},
 		{
 			output:            []int{2},
 			start:             2,
-			end:               2,
+			end:               4,
+			step:              5,
 			shouldReturnError: false,
+		},
+		{
+			output:            nil,
+			start:             2,
+			end:               2,
+			step:              0,
+			shouldReturnError: true,
 		},
 		{
 			output:            nil,
@@ -138,7 +149,7 @@ func createArrFromTestTable() []createArrFromTest {
 
 func TestCreateArrFrom(t *testing.T) {
 	for _, row := range createArrFromTestTable() {
-		res, err := CreateArrFrom(row.start, row.end)
+		res, err := CreateArrFrom(row.start, row.end, row.step)
 		if row.shouldReturnError && (err == nil || res != nil) {
 			t.Errorf(
 				"expected: (<nil>,error), got: (%v,%v)",
@@ -192,46 +203,6 @@ func TestConvertIntArrToString(t *testing.T) {
 		res := ConvertIntArrToString(row.arr, row.separator)
 		if res != row.expected {
 			t.Errorf("Incorrect output expected (%s), got (%s)", row.expected, res)
-		}
-	}
-}
-
-type transformArrAndRemoveDupsTest struct {
-	arr      []int
-	step     int
-	expected []int
-}
-
-func createGetArrValuesTestTable() []transformArrAndRemoveDupsTest {
-	return []transformArrAndRemoveDupsTest{
-		{
-			arr:      []int{2, 3, 4, 5},
-			step:     2,
-			expected: []int{2, 4},
-		},
-		{
-			arr:      []int{2, 3, 4, 5, 6, 7, 8},
-			step:     3,
-			expected: []int{2, 5, 8},
-		},
-		{
-			arr:      []int{2, 3, 4, 5, 6, 7, 8},
-			step:     20,
-			expected: []int{2},
-		},
-		{
-			arr:      []int{},
-			step:     20,
-			expected: []int{},
-		},
-	}
-}
-
-func TestGetArrValues(t *testing.T) {
-	for _, row := range createGetArrValuesTestTable() {
-		res := GetArrValues(row.arr, row.step)
-		if !reflect.DeepEqual(row.expected, res) {
-			t.Errorf("Incorrect output expected %v, got %v", row.expected, res)
 		}
 	}
 }
