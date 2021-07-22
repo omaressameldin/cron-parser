@@ -206,3 +206,51 @@ func TestConvertIntArrToString(t *testing.T) {
 		}
 	}
 }
+
+type convertMapToSortedArrayTest struct {
+	input    map[int]bool
+	expected []int
+}
+
+func createConvertMapToSortedArrayTestTable() []convertMapToSortedArrayTest {
+	return []convertMapToSortedArrayTest{
+		{
+			input: map[int]bool{
+				10: true,
+				2:  true,
+				4:  true,
+				7:  true,
+				9:  true,
+			},
+			expected: []int{2, 4, 7, 9, 10},
+		},
+		{
+			input: map[int]bool{
+				10: true,
+			},
+			expected: []int{10},
+		},
+		{
+			input: map[int]bool{
+				10:  true,
+				-10: true,
+				0:   true,
+				5:   true,
+			},
+			expected: []int{-10, 0, 5, 10},
+		},
+		{
+			input:    map[int]bool{},
+			expected: []int{},
+		},
+	}
+}
+
+func TestConvertMapToSortedArray(t *testing.T) {
+	for _, row := range createConvertMapToSortedArrayTestTable() {
+		res := ConvertMapToSortedArr(row.input)
+		if !reflect.DeepEqual(row.expected, res) {
+			t.Errorf("expected [%v], got [%v]", row.expected, res)
+		}
+	}
+}
