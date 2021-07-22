@@ -25,7 +25,9 @@ A golang cli to parse cron job input.
 ## Improvements
 - The code could use a better structure.
 - Regex matching could have been used to validate the command.
+- Right now I am assuming that all months are 31 days so a case of a task that only runs in february for example but runs all days of it will still mention 30,31 as days it can run in.
 
-## packages used
+## Resources
 - [os/exec](https://golang.org/pkg/os/exec/)
 - [Cobra](https://github.com/spf13/cobra#flags)
+- [cron job validator](https://www.freeformatter.com/cron-expression-generator-quartz.html)
