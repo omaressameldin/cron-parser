@@ -3,7 +3,6 @@ package parser
 import (
 	"fmt"
 	"strings"
-	"utils"
 )
 
 func Init(timeValues [5]string, command []string) (*Parser, error) {
@@ -48,20 +47,7 @@ func parseRange(rangeValue string, rng Range) ([]int, error) {
 		return nil, err
 	}
 
-	step, err := getStep(rangeValue, rng)
-	if err != nil {
-		return nil, err
-	}
-
-	return utils.GetArrValues(timeValues, step), nil
-}
-
-func createCommand(command []string) (string, error) {
-	if len(command) == 0 {
-		return "", fmt.Errorf("command is empty")
-	}
-
-	return strings.Join(command, " "), nil
+	return timeValues, nil
 }
 
 func (p *Parser) GetMinute() []int {
@@ -86,4 +72,12 @@ func (p *Parser) GetMonth() []int {
 
 func (p *Parser) GetCommand() string {
 	return p.command
+}
+
+func createCommand(command []string) (string, error) {
+	if len(command) == 0 {
+		return "", fmt.Errorf("command is empty")
+	}
+
+	return strings.Join(command, " "), nil
 }

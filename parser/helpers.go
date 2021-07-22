@@ -2,118 +2,143 @@ package parser
 
 import (
 	"fmt"
-	"sort"
 	"strconv"
 	"strings"
 	"utils"
 )
 
 func createError(value interface{}, err error) error {
-	return fmt.Errorf("invalid value %v, reason: %s", value, err.Error())
+	return fmt.Errorf("invalid value (%v), reason: %s", value, err.Error())
 }
 
 func getTimeValues(value string, rng Range) ([]int, error) {
-	valuesArr := strings.Split(value, "/")
-	if len(valuesArr) == 0 {
+	timeRanges := strings.Split(value, ",")
+	totalValues := make(map[int]bool)
+	if len(timeRanges) == 0 {
 		return nil, fmt.Errorf("value is empty")
 	}
-	if valuesArr[0] == "*" {
-		timeValues, err := utils.CreateArrFrom(rng.Start, rng.End)
+	for _, timeRange := range timeRanges {
+		runTime, err := parseTimeRange(timeRange, rng)
 		if err != nil {
 			return nil, err
 		}
 
-		return timeValues, nil
-	}
-	newRange, err := getRangeIfRangeValue(valuesArr[0], rng)
-	if err != nil {
-		return nil, err
-	}
-	if newRange != nil {
-		timeValues, err := utils.CreateArrFrom(newRange.Start, newRange.End)
+		isStarValue, err := addStarValue(totalValues, rng, runTime)
 		if err != nil {
 			return nil, err
 		}
-		return timeValues, nil
+		if isStarValue {
+			continue
+		}
+
+		isRangeValue, err := addRangeValue(totalValues, rng, runTime)
+		if err != nil {
+			return nil, err
+		}
+		if isRangeValue {
+			continue
+		}
+
+		_, err = addSingleValue(totalValues, rng, runTime)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	return getCommaSeparatedValues(valuesArr[0], rng)
+	return utils.ConvertMapToSortedArr(totalValues), nil
 }
 
-func getRangeIfRangeValue(value string, oldRange Range) (*Range, error) {
-	rangeValue := strings.Split(value, "-")
+func parseTimeRange(timeRange string, rng Range) (*RunTime, error) {
+	rangeValues := strings.Split(timeRange, "/")
+	runTime := &RunTime{
+		step:      1,
+		hasStep:   false,
+		timeValue: rangeValues[0],
+	}
+
+	if len(rangeValues) > 2 {
+		return nil, fmt.Errorf("multiple / found in one range")
+	}
+	if len(rangeValues) == 2 {
+		step, err := strconv.Atoi(rangeValues[1])
+		if err != nil {
+			return nil, err
+		}
+		if step > rng.End || step < rng.Start {
+			return nil, fmt.Errorf("%d is not a valid increment for %v", step, rng)
+		}
+		runTime.step = step
+		runTime.hasStep = true
+	}
+
+	return runTime, nil
+}
+
+func addStarValue(totalValues map[int]bool, rng Range, runTime *RunTime) (bool, error) {
+	if runTime.timeValue != "*" {
+		return false, nil
+	}
+
+	timeValues, err := utils.CreateArrFrom(rng.Start, rng.End, runTime.step)
+	if err != nil {
+		return false, err
+	}
+	utils.AddToMap(totalValues, timeValues)
+
+	return true, nil
+}
+
+func addRangeValue(totalValues map[int]bool, oldRange Range, runTime *RunTime) (bool, error) {
+	rangeValue := strings.Split(runTime.timeValue, "-")
 	if len(rangeValue) == 1 {
-		return nil, nil
+		return false, nil
 	} else if len(rangeValue) > 2 {
-		return nil, fmt.Errorf("too many - found")
+		return false, fmt.Errorf("too many - found")
 	}
 
 	start, err := strconv.Atoi(rangeValue[0])
 	if err != nil {
-		return nil, err
+		return false, err
 	}
 	if start < oldRange.Start {
-		return nil, fmt.Errorf("values is out of range %v", oldRange)
+		return false, fmt.Errorf("values is out of range %v", oldRange)
 	}
 
 	end, err := strconv.Atoi(rangeValue[1])
 	if err != nil {
-		return nil, err
+		return false, err
 	}
 	if end > oldRange.End {
-		return nil, fmt.Errorf("value is out of range %v", oldRange)
+		return false, fmt.Errorf("value is out of range %v", oldRange)
 	}
 
-	return &Range{
-		Start: start,
-		End:   end,
-	}, nil
-}
-
-func getCommaSeparatedValues(value string, oldRange Range) ([]int, error) {
-	values := strings.Split(value, ",")
-	valuesMap := make(map[int]bool)
-
-	for _, value := range values {
-		parsedValue, err := strconv.Atoi(value)
-		if err != nil {
-			return nil, err
-		}
-		if valuesMap[parsedValue] {
-			return nil, fmt.Errorf("duplicate value found")
-		}
-		if parsedValue < oldRange.Start || parsedValue > oldRange.End {
-			return nil, fmt.Errorf("value is out of range %v", oldRange)
-		}
-		valuesMap[parsedValue] = true
-	}
-
-	parsedValues := make([]int, 0, len(valuesMap))
-	for val := range valuesMap {
-		parsedValues = append(parsedValues, val)
-	}
-	//sorting because hashmap will not preserve insertion order, linkedHashMap can be used instead.
-	sort.Ints(parsedValues)
-	return parsedValues, nil
-}
-
-func getStep(value string, rng Range) (int, error) {
-	timeValues := strings.Split(value, "/")
-	if len(timeValues) > 2 {
-		return 0, fmt.Errorf("multiple / found")
-	}
-
-	if len(timeValues) < 2 {
-		return 1, nil
-	}
-
-	step, err := strconv.Atoi(timeValues[1])
+	timeValues, err := utils.CreateArrFrom(start, end, runTime.step)
 	if err != nil {
-		return 0, err
+		return false, err
 	}
-	if step < 1 || step > rng.End {
-		return 0, fmt.Errorf("step value is out of range: 1 -> %d", rng.End)
+	utils.AddToMap(totalValues, timeValues)
+
+	return true, nil
+}
+
+func addSingleValue(totalValues map[int]bool, rng Range, runTime *RunTime) (bool, error) {
+	singleValue, err := strconv.Atoi(runTime.timeValue)
+	if err != nil {
+		return false, err
+	}
+	if singleValue < rng.Start || singleValue > rng.End {
+		return false, fmt.Errorf("value is out of range %v", rng)
 	}
 
-	return step, nil
+	if runTime.hasStep {
+		timeValues, err := utils.CreateArrFrom(singleValue, rng.End, runTime.step)
+		if err != nil {
+			return false, err
+		}
+		utils.AddToMap(totalValues, timeValues)
+	} else {
+		totalValues[singleValue] = true
+	}
+
+	return true, nil
 }

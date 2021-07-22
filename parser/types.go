@@ -14,6 +14,12 @@ type Range struct {
 	End   int
 }
 
+type RunTime struct {
+	timeValue string
+	step      int
+	hasStep   bool
+}
+
 const minArgsLength = 6
 
 var minuteRange = Range{0, 59}

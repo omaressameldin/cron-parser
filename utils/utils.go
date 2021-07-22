@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -83,4 +84,20 @@ func ConvertIntArrToString(arr []int, separator string) string {
 	}
 
 	return strings.Join(strArr, separator)
+}
+
+func AddToMap(values map[int]bool, arr []int) {
+	for _, item := range arr {
+		values[item] = true
+	}
+}
+
+func ConvertMapToSortedArr(values map[int]bool) []int {
+	arr := make([]int, 0, len(values))
+	for key := range values {
+		arr = append(arr, key)
+	}
+	sort.Ints(arr)
+
+	return arr
 }
