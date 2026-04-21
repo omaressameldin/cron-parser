@@ -9,11 +9,18 @@ import (
 	"strings"
 )
 
-func Must(err error) {
-	if err != nil {
-		log.Println(err.Error())
-		os.Exit(1)
-	}
+func Must(err []error) {
+
+		filtered_errors := 0
+		for _, e := range err {
+			if e != nil {
+				filtered_errors++
+				log.Println(e.Error())
+			}
+		}
+		if filtered_errors > 0 {
+			os.Exit(1)
+		}
 }
 
 func EqualizeStringsSizes(words []string) []string {

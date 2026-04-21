@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 	"utils"
@@ -141,4 +142,60 @@ func addSingleValue(totalValues map[int]bool, rng Range, runTime *RunTime) (bool
 	}
 
 	return true, nil
+}
+
+func validateInRange(value []int, rng Range) error {
+	for _, v := range value {
+		if v < rng.Start || v > rng.End {
+			return fmt.Errorf("%d is out of range %v", v, rng)
+		}
+	}
+	return nil
+}
+
+func FindBestCronIntConversion(values []int, maxRange Range) string {
+	if len(values) == 0 {
+		return "*"
+	}
+	sortedValues := sort.IntSlice(values)
+
+	ranges := []string{}
+	rangeStart := sortedValues[0]
+	prevValue := rangeStart
+	step := 0
+	for i := 1; i < len(sortedValues); i++ {
+		curValue := sortedValues[i]
+		if curValue == prevValue {
+			continue
+		}
+
+		if step == 0 {
+			step = curValue - prevValue
+		} else if curValue-prevValue != step {
+			ranges = append(ranges, convertRangeToString(rangeStart, prevValue, step, maxRange))
+			rangeStart = curValue
+			step = 0
+		}
+		prevValue = curValue
+	}
+	ranges = append(ranges, convertRangeToString(rangeStart, prevValue, step, maxRange))
+
+	return strings.Join(ranges, ",")
+}
+
+func convertRangeToString(rangeStart int, rangeEnd int, step int, maxRange Range) string {
+			rangeStr := ""
+			if rangeStart == maxRange.Start && rangeEnd == maxRange.End {
+				rangeStr = "*"
+			} else if rangeEnd == maxRange.End || rangeStart == rangeEnd  {
+				rangeStr = strconv.Itoa(rangeStart)
+			} else {
+				rangeStr = fmt.Sprintf("%d-%d", rangeStart, rangeEnd)
+			}
+
+			if step > 1 {
+				rangeStr = fmt.Sprintf("%s/%d", rangeStr, step)
+			}
+
+			return rangeStr
 }

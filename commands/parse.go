@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const minArgsLength = 6
+const parseCmdArgsLength = 6
 
 var parseCmd = &cobra.Command{
 	Use:   "parse",
@@ -21,7 +21,7 @@ func init() {
 }
 
 func parseCron(cmd *cobra.Command, args []string) {
-	utils.Must(utils.ValidateMinLength(minArgsLength, args))
+	utils.Must([]error{utils.ValidateMinLength(parseCmdArgsLength, args)})
 
 	rows := utils.EqualizeStringsSizes([]string{
 		"minute:",
@@ -33,10 +33,10 @@ func parseCron(cmd *cobra.Command, args []string) {
 	})
 	// taking all of args except command (1 or more arg) as command does not need adjusting
 	var timeArgs [5]string
-	copy(timeArgs[:], args[:minArgsLength-1])
+	copy(timeArgs[:], args[:parseCmdArgsLength-1])
 
-	cronParser, err := parser.Init(timeArgs, args[minArgsLength-1:])
-	utils.Must(err)
+	cronParser, err := parser.Init(timeArgs, args[parseCmdArgsLength-1:])
+	utils.Must([]error{err})
 
 	printExpandedTable(rows, cronParser)
 }
