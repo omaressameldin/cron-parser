@@ -20,6 +20,13 @@ type RunTime struct {
 	hasStep   bool
 }
 
+type GreedyRangeSplit struct {
+	LongestRange []int
+	RemainingValues []int
+	NumberOfRanges int
+	Step int
+}
+
 const minArgsLength = 6
 
 var minuteRange = Range{0, 59}

@@ -6,5 +6,5 @@ import (
 )
 
 func main() {
-	utils.Must(commands.RootCmd.Execute())
+	utils.Must([]error{commands.RootCmd.Execute()})
 }

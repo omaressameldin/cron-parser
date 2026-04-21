@@ -41,6 +41,55 @@ func Init(timeValues [5]string, command []string) (*Parser, error) {
 	}, nil
 }
 
+func CreateRawParser(
+	minute []int,
+	hour []int,
+	day []int,
+	week []int,
+	month []int,
+	command string,
+) (*Parser, []error) {
+	var errors []error
+
+	err := validateInRange(minute, minuteRange)
+	if err != nil {
+		errors = append(errors, err)
+	}
+	err = validateInRange(hour, hourRange)
+	if err != nil {
+		errors = append(errors, err)
+	}
+	err = validateInRange(day, dayRange)
+	if err != nil {
+		errors = append(errors, err)
+	}
+	err = validateInRange(week, weekRange)
+	if err != nil {
+		errors = append(errors, err)
+	}
+	err = validateInRange(month, monthRange)
+	if err != nil {
+		errors = append(errors, err)
+	}
+
+	if command == "" {
+		errors = append(errors, fmt.Errorf("command is empty"))
+	}
+
+	if len(errors) > 0 {
+		return nil, errors
+	}
+
+	return &Parser{
+		minute:  minute,
+		hour:    hour,
+		day:     day,
+		week:    week,
+		month:   month,
+		command: command,
+	}, errors
+}
+
 func parseRange(rangeValue string, rng Range) ([]int, error) {
 	timeValues, err := getTimeValues(rangeValue, rng)
 	if err != nil {
@@ -72,6 +121,16 @@ func (p *Parser) GetMonth() []int {
 
 func (p *Parser) GetCommand() string {
 	return p.command
+}
+
+func (p * Parser) GenerateCronString() string {
+	return fmt.Sprintf("%s %s %s %s %s %s",
+	FindBestCronIntConversion(p.minute, minuteRange),
+	FindBestCronIntConversion(p.hour, hourRange),
+	FindBestCronIntConversion(p.day, dayRange),
+	FindBestCronIntConversion(p.month, monthRange),
+	FindBestCronIntConversion(p.week, weekRange),
+	p.command)
 }
 
 func createCommand(command []string) (string, error) {
